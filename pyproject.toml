@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "habit-tracker"
+version = "0.1.0"
+description = ""
+authors = ["Борзунов Андрей <andry73@yandex.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+black = "^26.3.1"
+djangorestframework = "^3.17.1"
+django = "5.0.4"
+psycopg2-binary = "^2.9.12"
+pillow = "^12.2.0"
+python-dotenv = "^1.2.2"
+flake8 = "^7.3.0"
+isort = "^8.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
