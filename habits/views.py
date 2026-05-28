@@ -4,11 +4,13 @@ from rest_framework import status
 
 from habits.models import Habit
 from habits.serializers import HabitSerializer
+from habits.paginators import HabitPagination
 
 
 class HabitViewSet(ModelViewSet):
     queryset = Habit.objects.all()
     serializer_class = HabitSerializer
+    pagination_class = HabitPagination
 
     def perform_create(self, serializer):
         if serializer.is_valid():
