@@ -9,6 +9,10 @@ class HabitSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def validate(self, data):
+        # Если метод — PATCH, пропускаем валидацию
+        if self.context['request'].method == 'PATCH':
+            return data
+
         award = data.get('award')
         habit_pleasant = data.get('habit_pleasant')
         durations = data.get('durations')
