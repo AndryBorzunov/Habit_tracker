@@ -10,16 +10,16 @@ class HabitSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         # Если метод — PATCH, пропускаем валидацию
-        if self.context['request'].method == 'PATCH':
+        if self.context["request"].method == "PATCH":
             return data
 
-        award = data.get('award')
-        habit_pleasant = data.get('habit_pleasant')
-        durations = data.get('durations')
-        is_pleasant = data.get('is_pleasant')
-        periodicity = data.get('periodicity')
+        award = data.get("award")
+        habit_pleasant = data.get("habit_pleasant")
+        durations = data.get("durations")
+        is_pleasant = data.get("is_pleasant")
+        periodicity = data.get("periodicity")
 
-        if (is_pleasant):
+        if is_pleasant:
             if award or habit_pleasant:
                 raise serializers.ValidationError(
                     "У приятной привычки не должно быть вознаграждения или связанной привычки."
@@ -42,7 +42,7 @@ class HabitSerializer(serializers.ModelSerializer):
                 )
 
         if habit_pleasant:
-            print(habit_pleasant.is_pleasant)
+            # print(habit_pleasant.is_pleasant)
             if not habit_pleasant.is_pleasant:
                 raise serializers.ValidationError(
                     "В связанные привычки могут попадать только привычки с признаком приятной привычки."
