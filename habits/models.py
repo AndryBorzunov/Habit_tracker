@@ -22,7 +22,7 @@ class Habit(models.Model):
         help_text="Укажите место выполнения",
     )
 
-    time_action = models.TimeField(
+    time_action = models.DateTimeField(
         verbose_name="Время выполнения", help_text="Укажите время выполнения"
     )
 
