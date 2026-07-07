@@ -1,6 +1,6 @@
 FROM python:3.10-slim
 
-# Зависимости дл сборки
+# Зависимости для сборки
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     gcc \
@@ -12,7 +12,7 @@ ENV PATH="/root/.local/bin:$PATH"
 
 WORKDIR /app
 
-# Копируем алы зависимосте
+# Копируем фалы зависимостей
 COPY pyproject.toml poetry.lock ./
 
 # Создаем venv внутри образа и ставим зависимости (без dev дл production-образа)

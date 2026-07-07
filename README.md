@@ -42,3 +42,8 @@
 
 
 [Покрытие тестами](https://htmlpreview.github.io/?https://github.com/AndryBorzunov/habit_tracker/blob/feature/curswork_1/htmlcov/index.html)
+
+
+## Docker Compose
+
+- Для запуска приложения используйте команду:  **docker compose up -d**
