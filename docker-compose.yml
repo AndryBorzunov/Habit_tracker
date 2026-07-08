@@ -1,0 +1,108 @@
+#version: "3.9"
+
+services:
+  web:
+    build: .
+    command: poetry run python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+      - DATABASE_URL=postgresql://andry:12345@db:5432/drf
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-net
+
+  celery:
+    build: .
+    # Для воркера Celery
+    command: poetry run celery -A config worker -l INFO --pool=solo
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_started
+      db:
+        condition: service_healthy
+    networks:
+      - app-net
+
+  beat:
+    build: .
+    # Планировщик периодических задач
+    command: poetry run celery -A config beat -l INFO
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_started
+    networks:
+      - app-net
+
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: andry
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: drf
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U andry -d drf"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-net
+    ports:
+      # Не открывай наружу в проде; для локальной отладки можно оставить
+      - "5432:5432"
+
+  redis:
+    image: redis:5-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-net
+    ports:
+      - "6379:6379"
+
+  migrate:
+    build: .
+    command: poetry run python manage.py migrate
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+      - DATABASE_URL=postgresql://andry:12345@db:5432/drf
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - app-net
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  app-net:
+    driver: bridge
