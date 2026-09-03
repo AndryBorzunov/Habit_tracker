@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 # Зависимости для сборки
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -23,7 +23,13 @@ RUN poetry config virtualenvs.create false \
 COPY . .
 
 # Открываем порт дл Django
-EXPOSE 8000
+#EXPOSE 8000
+
+# Настраиваем переменные окружения
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
 # Команда по умолчанию - переопределим в docker-compose дл разных сервисов
-CMD ["poetry", "run", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+#CMD ["poetry", "run", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+CMD ["poetry", "run", "gunicorn", "-c", "gunicorn.conf.py", "config.wsgi:application"]

@@ -1,0 +1,146 @@
+name: Django CI
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install flake8
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+
+      - name: Run flake8
+        run: flake8 .
+
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:15
+        env:
+          POSTGRES_USER: andry
+          POSTGRES_PASSWORD: 12345
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DB_NAME: testdb
+      DB_USER: andry
+      DB_PASSWORD: 12345
+      DB_HOST: localhost  # обязательно localhost, а не db
+      PORT: 5432
+      #DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/testdb"
+      # DJANGO_SETTINGS_MODULE: "config.settings"
+      SECRET_KEY: "ci-not-a-real-secret"
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install PostgreSQL client (для pg_isready)
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Cache Poetry venv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: poetry-venv-${{ runner.os }}-3.12-${{ hashFiles('**/pyproject.toml', '**/poetry.lock') }}
+
+      - name: Install dependencies
+        run: |
+          poetry install --no-root
+
+      # Явная проверка готовности БД
+      - name: Wait for DB
+        run: |
+          for i in {1..40}; do
+            if pg_isready -h localhost -U andry -d testdb; then
+              echo "DB ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "DB never became ready"
+          exit 1
+
+      - name: Run migrations
+        run: poetry run python manage.py migrate --noinput --verbosity=2
+
+      - name: Run tests
+        run: poetry run python manage.py test
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Login in Docker hub
+        run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/mailing-service:${{ github.sha }} .
+
+      - name: Push Docker image in Docker hub
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/mailing-service:${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Deploy with docker compos
+        env:
+          IMAGE_TAG: "${{ github.sha }}"
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd /var/www/mailing-service/app
+            git pull origin feature/kurswork_4_1
+
+            cd ..
+            # Обновляем образ (если build зависит от внешних факторов — можно убрать build)
+            # Пересобрать образ, чтобы точно взять свежие файлы
+            sudo docker compose build --no-cache --pull
+
+            # Применяем миграции (запускается entrypoint.sh с командой migrate)
+            sudo docker compose run --rm web poetry run python manage.py migrate --noinput
+
+            # Поднимаем все сервисы
+            sudo docker compose up -d --remove-orphans
+          EOF
