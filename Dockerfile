@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Копируем файлы зависимостей ДО остального кода (чтобы кэшировать слой)
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml poetry.lock README.md ./
 
 # Устанавливаем Poetry, если его нет в базовом образе
 RUN pip install --no-cache-dir poetry
