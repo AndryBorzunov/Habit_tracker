@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 
-from django.conf.global_settings import AUTH_USER_MODEL  # MEDIA_URL
+# from django.conf.global_settings import AUTH_USER_MODEL  # MEDIA_URL
 from dotenv import load_dotenv
 
 load_dotenv()
