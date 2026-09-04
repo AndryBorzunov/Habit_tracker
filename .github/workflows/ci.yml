@@ -111,15 +111,18 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
+        with:
+          ref: feature/kurswork_5_1
+          fetch-depth: 1
 
       - name: Login in Docker hub
         run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/mailing-service:${{ github.sha }} .
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/habit-tracker:${{ github.sha }} .
 
       - name: Push Docker image in Docker hub
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/mailing-service:${{ github.sha }}
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/habit-tracker:${{ github.sha }}
 
   deploy:
     needs: build
@@ -136,8 +139,8 @@ jobs:
           IMAGE_TAG: "${{ github.sha }}"
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            cd /var/www/mailing-service/app
-            git pull origin feature/kurswork_4_1
+            cd /var/www/habit-tracker/app
+            git pull origin feature/kurswork_5_1
 
             cd ..
             # Обновляем образ (если build зависит от внешних факторов — можно убрать build)
