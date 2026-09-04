@@ -23,8 +23,8 @@ RUN pip install --no-cache-dir poetry
 ENV POETRY_VIRTUALENVS_CREATE=false
 
 # Ставим только основные зависимости
-# RUN poetry install --no-interaction --no-ansi --only main
-RUN poetry install --no-interaction --no-ansi
+# RUN poetry install --no-interaction --no-ansi --only main --no-root
+RUN poetry install --no-interaction --no-ansi --no-root
 
 # Создаем venv внутри образа и ставим зависимости (без dev дл production-образа)
 # RUN poetry config virtualenvs.create false \
