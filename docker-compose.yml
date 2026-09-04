@@ -16,7 +16,7 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
     volumes:
-      - .:/app       # <-- точка — это корень проекта, где лежит manage.py
+      - .:.      # <-- точка — это корень проекта, где лежит manage.py
     working_dir: /app   # <-- важно: чтобы manage.py был в текущей директории
     expose:
       - "8000"
@@ -36,7 +36,7 @@ services:
     # Для воркера Celery
     command: poetry run celery -A config worker -l INFO --pool=solo
     volumes:
-      - .:/app       # <-- точка — это корень проекта, где лежит manage.py
+      - .:.      # <-- точка — это корень проекта, где лежит manage.py
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings
       - REDIS_URL=redis://redis:6379/0
@@ -53,7 +53,7 @@ services:
     # Планировщик периодических задач
     command: poetry run celery -A config beat -l INFO
     volumes:
-      - .:/app       # <-- точка — это корень проекта, где лежит manage.py
+      - .:.       # <-- точка — это корень проекта, где лежит manage.py
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings
       - REDIS_URL=redis://redis:6379/0
@@ -101,7 +101,7 @@ services:
     build: .
     command: poetry run python manage.py migrate
     volumes:
-      - .:/app        # <-- точка — это корень проекта, где лежит manage.py
+      - .:.       # <-- точка — это корень проекта, где лежит manage.py
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings
       - DATABASE_URL=${DATABASE_URL}
