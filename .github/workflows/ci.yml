@@ -142,7 +142,7 @@ jobs:
             cd /var/www/habit-tracker/app
             git pull origin feature/kurswork_5_1
 
-            cd ..
+            # cd ..
             # Обновляем образ (если build зависит от внешних факторов — можно убрать build)
             # Пересобрать образ, чтобы точно взять свежие файлы
             sudo docker compose build --no-cache --pull
