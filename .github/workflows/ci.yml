@@ -112,7 +112,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
         with:
-          ref: feature/kurswork_5_1
+          ref: feature/kurswork_itog
           fetch-depth: 1
 
       - name: Login in Docker hub
