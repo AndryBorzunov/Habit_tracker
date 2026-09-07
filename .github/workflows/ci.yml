@@ -140,7 +140,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd /var/www/habit-tracker/app
-            git pull origin feature/kurswork_5_1
+            git pull origin feature/kurswork_itog
 
             # cd ..
             # Обновляем образ (если build зависит от внешних факторов — можно убрать build)
