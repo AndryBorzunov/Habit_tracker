@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['158.160.178.202', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ["158.160.178.202", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -122,7 +122,9 @@ DATABASES = {
         "NAME": os.environ.get("DB_NAME"),
         "USER": os.environ.get("DB_USER"),
         "PASSWORD": os.environ.get("DB_PASSWORD"),
-        "HOST": os.environ.get("DB_HOST", "localhost"),  # в CI с services хост всегда localhost
+        "HOST": os.environ.get(
+            "DB_HOST", "localhost"
+        ),  # в CI с services хост всегда localhost
         "PORT": int(os.environ.get("PORT", 5432)),
     }
 }
