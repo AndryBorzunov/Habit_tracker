@@ -123,7 +123,7 @@ DATABASES = {
         "USER": os.environ.get("DB_USER"),
         "PASSWORD": os.environ.get("DB_PASSWORD"),
         "HOST": os.environ.get(
-            "DB_HOST", "localhost"
+            "DB_HOST", "db"
         ),  # в CI с services хост всегда localhost
         "PORT": int(os.environ.get("PORT", 5432)),
     }
