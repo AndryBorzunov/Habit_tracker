@@ -33,7 +33,7 @@ DEBUG = False
 
 # ALLOWED_HOSTS = ["158.160.186.173", "localhost", "127.0.0.1"]
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*,158.160.x.x,localhost,127.0.0.1").split(",")
 
 # Application definition
 
