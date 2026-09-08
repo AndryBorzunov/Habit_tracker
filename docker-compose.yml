@@ -3,7 +3,7 @@
 services:
 
   web:
-    build: .
+    # build: .
     command: poetry run gunicorn -c gunicorn.conf.py config.wsgi:application
     restart: unless-stopped
     environment:
@@ -15,8 +15,11 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
+    image: username/habit-tracker:${IMAGE_TAG:-latest}
     volumes:
-      - .:/app       # <-- точка — это корень проекта, где лежит manage.py
+      - static_volume:/app/static
+      - media_volume:/app/media
+      # - .:/app       # <-- точка — это корень проекта, где лежит manage.py
     working_dir: /app   # <-- важно: чтобы manage.py был в текущей директории
     expose:
       - "8000"
