@@ -141,7 +141,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd /var/www/habit-tracker/app
             # git pull origin feature/kurswork_itog
-            № git pull origin feature/kurswork_itog || exit 1
+            # git pull origin feature/kurswork_itog || exit 1
           
             # Обновляем тег образа в .env
             echo "IMAGE_TAG=${{ github.sha }}" > .env.image
