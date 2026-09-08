@@ -15,7 +15,7 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-    image: username/habit-tracker:${IMAGE_TAG:-latest}
+    image: ${{ secrets.DOCKER_HUB_USERNAME }}/habit-tracker:${{ github.sha }}
     volumes:
       - static_volume:/app/static
       - media_volume:/app/media
