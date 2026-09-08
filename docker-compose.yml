@@ -133,6 +133,8 @@ services:
 volumes:
   postgres_data:
   redisdata:
+  static_volume:
+  media_volume:
 
 networks:
   app-net:
