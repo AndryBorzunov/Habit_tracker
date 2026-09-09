@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 
-from django.conf.global_settings import AUTH_USER_MODEL  # MEDIA_URL
+# from django.conf.global_settings import AUTH_USER_MODEL  # MEDIA_URL
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -29,10 +29,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ["158.160.186.173", "localhost", "127.0.0.1"]
 
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*,158.160.x.x,localhost,127.0.0.1").split(",")
 
 # Application definition
 
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "users",
     "habits",
+    "health",
 ]
 
 MIDDLEWARE = [
@@ -101,20 +103,32 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 
-# Database
+# Database my
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": os.getenv("POSTGRES_DB", "drf"),
+#         "USER": os.getenv("POSTGRES_USER", "andry"),
+#         "PASSWORD": os.getenv("POSTGRES_PASSWORD", "12345"),
+#         "HOST": "db",   # им сервиса в docker-compose
+#         "PORT": "5432",
+#     }
+# }
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.getenv("NAME"),
-        "USER": "andry",
-        "PASSWORD": "12345",
-        "HOST": os.getenv("HOST"),
-        "PORT": os.getenv("PORT"),
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get(
+            "DB_HOST", "db"
+        ),  # в CI с services хост всегда localhost
+        "PORT": int(os.environ.get("PORT", 5432)),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -162,8 +176,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.User"
 
-CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
-CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
+REDIS_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0")
+
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60

@@ -1,4 +1,4 @@
 [flake8]
+exclude = __pycache__,tests.py,dist,node_modules,.git,.venv,migrations
 max-line-length = 250
 ignore = E203, W503
-exclude =.git, __pycache__
